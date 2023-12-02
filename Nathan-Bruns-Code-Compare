@@ -1,0 +1,126 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.io
+
+def SLIRP_func(t, y, beta, uL_inverse, uI_inverse, e, T, A_p, tspan):
+    P_b = y[0]
+    S = y[2]
+    L = y[3]
+    I = y[4]
+    
+    beta = beta[t]
+    uL_inverse = uL_inverse[t]
+    T_E = -0.35968 + 0.10789 * T[t] - 0.00214 * T[t]**2
+    t_day = 30 + tspan[t]
+    dP_l_dt = 1.33 * t_day * T_E
+
+    dP_b_dt = (0.1724 * P_b - 0.0000212 * P_b**2) * T_E
+    dPdt = dP_b_dt + dP_l_dt
+    dSdt = (-beta * S * I) + (dPdt / A_p)
+    dLdt = (beta * S * I) - (uL_inverse * L) + e
+    dIdt = (uL_inverse * L) - (uI_inverse * I)
+    dRdt = (uI_inverse * I)
+    return (dP_b_dt, dPdt, dSdt, dLdt, dIdt, dRdt)
+
+def rk4(odefun, tspan, y0):
+    eqs = len(y0)
+    points = len(tspan)
+    y = np.zeros([eqs, points])
+    h = np.zeros(points)
+    for k in range(eqs):
+        y[k, 0] = y0[k]
+    for j in range(1, points):
+        # can't really do t + h/2 since t is an index, so I just made it so k1 and k2 
+        # use the previous index of t, and k3 and 4 use to current index of t to replicate
+        # the effect of the + h/2
+        h = tspan[j] - tspan[j-1]
+        k1 = np.array(odefun(j-1, y[:,j-1]))
+        k2 = np.array(odefun(j-1, y[:,j-1] + h*k1/2))
+        k3 = np.array(odefun(j, y[:,j-1] + h*k2/2))
+        k4 = np.array(odefun(j, y[:,j-1] + h*k3))
+        y[:,j] = y[:,j-1] + h * (k1 + 2*k2 + 2*k3 + k4)/6  
+            
+    P_b = y[0,:]
+    P = y[1,:] 
+    S = y[2,:]
+    L = y[3,:]
+    I = y[4,:]
+    R = y[5,:]
+    return (P_b, P, S, L, I, R)
+
+
+# Driver Script
+mat_data = scipy.io.loadmat('EnvironmentalForcing.mat')
+T = mat_data["T"][0]
+tspan = mat_data["tspan"][0]
+beta_max = 1
+uL_min = 6
+T_beta = np.zeros(len(T))
+uL = np.zeros(len(tspan))
+for i in range(len(T)):
+    if (T[i] <= 0 or T[i] >= 35): #degrees in C
+        T_beta[i] = 0
+    else:
+        T_beta[i] = 0.000241 * T[i]**2.06737 * (35 - T[i])**0.72859       
+beta = beta_max * T_beta 
+j = 0
+for i in range(len(tspan)):
+    uL[i] = sum(T_beta[j:i+1])
+    while uL[i] > uL_min:
+        j = j+1
+        uL[i] = sum(T_beta[j:i+1])      
+uI = 10
+uL_inverse = 1 / uL
+uI_inverse = 1/ uI
+e = 0.001
+A_p = 5000
+
+# Initial variables
+P_b_i = 1 # Berry population in cm^2
+P_i = 1.33 * 30 * (-0.35968 + 0.10789 * 15 - 0.00214 * 15**2 ) * 30
+S_i = P_i / A_p
+L_i = 0.01 * S_i
+I_i = 0
+R_i = uI * I_i
+y_vec = np.array([P_b_i, P_i, S_i, L_i, I_i, R_i])
+
+# t is integer index for time in tspan
+odefun = lambda t, y: SLIRP_func(t, y, beta, uL_inverse, uI_inverse, e, T, A_p, tspan)
+(P_b, P, S, L, I, R) = rk4(odefun, tspan, y_vec)
+plt.plot(tspan, P/A_p, label='Total Population', color='limegreen')
+plt.plot(tspan, P_b/A_p, label='Berry Population', color='magenta')
+plt.plot(tspan, S, label='Susceptible', color='k')
+plt.plot(tspan, L, label='Latent', color='cyan')
+plt.plot(tspan, I, label='Infected', color='b')
+plt.plot(tspan, R, label='Removed', color='firebrick')
+plt.legend()
+plt.xlim(0, 61)
+plt.ylim(0, 1.6)
+plt.xlabel('Time (Days)')
+plt.ylabel('Population (Fraction of Initial)')
+plt.title('SLIRP Plant Disease Simulation Plots \n uL_min = 6')
+plt.show()
+
+plt.plot(tspan, T)
+plt.xlim(0, 61)
+plt.ylim(0, 40)
+plt.xlabel('Time (Days)')
+plt.ylabel('Temperature in C')
+plt.title('Forcing Air Temperature Data')
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
