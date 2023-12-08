@@ -24,6 +24,7 @@ def gaussian_plume_dep(X, Y, WindSpeed, WindDir, dep_area, Q):
     C[PosX] = (1. / (2 * np.pi * sigy * WindSpeed)) * np.exp(-((y[PosX])**2) / (2 * sigy**2))
     C[PosX] = np.exp(-0.05 * np.abs(x[PosX])) * C[PosX]  # Miller et al (2018) removal rate
     C[PosX] = np.real(set_vel * C[PosX] * dep_length * Q)
+    #Q = u_s?
 
     # Note that this C is the deposition in amount/second (a rate)
     return C
