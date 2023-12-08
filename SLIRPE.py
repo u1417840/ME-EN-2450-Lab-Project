@@ -54,6 +54,8 @@ def SLIRPE_model(idx, y, e, mu_L, p):
         m_used = 0.5*(Windspd[idx]+Windspd[idx+1])
 
     beta = beta_max * sall_temp_effect(T_used)  # pathogen growth rate
+    T_E = -0.35968 + 0.10789 * T_used - 0.00214 * (T_used**2)
+
 
     dydt = np.zeros_like(y)
 # =============================================================================
