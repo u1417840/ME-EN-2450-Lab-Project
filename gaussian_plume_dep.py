@@ -9,7 +9,7 @@ def gaussian_plume_dep(X, Y, WindSpeed, WindDir, dep_area, Q):
     # Calculate the 'outgoing' wind direction in radians
     WindDir = np.radians(WindDir)
     dep_length = np.sqrt(dep_area / 10000)  # Convert to m^2
-
+    #dep_area = S
     # Initialize deposition array
     C = np.full(len(X), np.nan)
     X = np.array(X)
