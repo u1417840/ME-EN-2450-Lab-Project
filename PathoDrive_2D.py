@@ -4,7 +4,7 @@ import scipy.io
 from PathogenGrowth_2D import PathogenGrowth_2D
 
 # driver script for our 2 dimensional pathogen simulation
-# edit here
+
 # load Environmental Forcing data (U, V, T, tspan)
 mat_data = scipy.io.loadmat('EnvironmentalForcing.mat')
 T = mat_data["T"][0]
