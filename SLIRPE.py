@@ -30,6 +30,7 @@
 
 import numpy as np
 from Sall_temp_effect import sall_temp_effect
+from gaussian_plume_dep import gaussian_plume_dep
 
 def SLIRPE_model(idx, y, e, mu_L, p):
     # Assign parameters
@@ -73,7 +74,7 @@ def SLIRPE_model(idx, y, e, mu_L, p):
 
 # =============================================================================
 #     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#     %YOUR CODE GOES HERE for our E function
+    dydt[6] = gaussian_plume_dep(X, Y, WindSpeed, WindDir, dep_area, Q)
     if(I==0):  #spore production shouldn't start before infection (quirk of exponential curve fit)
         dydt[7] = 0
     else:
