@@ -58,8 +58,8 @@ def SLIRPE_model(idx, y, e, mu_L, p):
     dydt = np.zeros_like(y)
 # =============================================================================
 #     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#     dydt[0] = %YOUR CODE GOES HERE for our Pb (Berries) function
-#     dydt[1] = %YOUR CODE GOES HERE for our P function
+    dydt[0] = dP_bdt = (0.1724 * P_b - 0.0000212 * P_b**2) * T_E
+    dydt[1] = %YOUR CODE GOES HERE for our P function
 #     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # =============================================================================
 
