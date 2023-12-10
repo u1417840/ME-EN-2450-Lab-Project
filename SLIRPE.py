@@ -77,11 +77,12 @@ def SLIRPE_model(idx, y, e, mu_L, p):
     # X, Y is U and V
     # Q = S
     # dep_area = S
-    dydt[6] = gaussian_plume_dep(X, Y, WindSpeed, WindDir, dep_area, Q)
+    # dydt[6] = gaussian_plume_dep(X, Y, WindSpeed, WindDir, dep_area, Q)
+    dydt[6] = e
     if(I==0):  #spore production shouldn't start before infection (quirk of exponential curve fit)
         dydt[7] = 0
     else:
-#       YOUR CODE GOES HERE for our F function
+    #    dydt[7] = 
 #     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # =============================================================================
     return dydt
