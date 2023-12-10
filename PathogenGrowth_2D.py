@@ -103,19 +103,30 @@ def PathogenGrowth_2D(vine, beta_max, mu_L_target, mu_I, A, eta, kappa, xi, Gamm
                     vine[cnt]["F"][t - 1],  # size of the spreading population
                 ]
 
-# =============================================================================
 #             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #             % integrate using a time integration method from class
 #             %%%% INSERT YOUR CODE HERE for time integration, note for
 #             %%%% odefun to work as given above your call needs to look like:
-#             %
-#             %[y] = TimeInt(odefun,t,dt,y0,DepFlux_sum(cnt),vine(cnt).mu_L);
-#             %
+#             %[y] = TimeInt(odefun,t,dt,y0,DepFlux_sum(cnt),vine(cnt).mu_L)
+                # need to modify to match above^^
+                def rk4(odefun, tspan, y0):
+                    tLen = len(tspan)
+                    yLen = len(x0)
+                    yList = np.zeros((tLen, yLen))
+                    yList[0, :] = x0
+                    for i in range(len(tspan) - 1):
+                        h = tspan[i+1] - tspan[i]
+                        k1 = np.array(odefun(tspan[i], yList[i, :]))
+                        k2 = np.array(odefun(tspan[i] + 0.5 * h, yList[i, :] + 0.5 * k1 * h))
+                        k3 = np.array(odefun(tspan[i] + 0.5 * h, yList[i, :] + 0.5 * k2 * h))
+                        k4 = np.array(odefun(tspan[i] + h, yList[i, :] + k3 * h))
+                        slope = (k1 + 2.0*k2 + 2.0*k3 + k4) / 6.0
+                        yList[i+1, :] = yList[i, :] + slope * h
+                    return yList
 #             %NOTE: recognize that you are only integrating 1 time step!
 #             %your routine can be more general than that but recognize that
 #             %this point is in the middle of a time loop!
 #             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-# =============================================================================
 
                 # Set outputs
                 vine[cnt]["B"][t] = y[0]
