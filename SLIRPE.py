@@ -39,7 +39,6 @@ def SLIRPE_model(idx, y, e, mu_L, p):
     # Assign variables
     B, P, S, L, I, R, E, F = y[:8]
     
-    
     # Calculated parameters
     if np.ceil(idx) == np.floor(idx): #when we are at an interger step
         idx = int(idx)
@@ -56,7 +55,6 @@ def SLIRPE_model(idx, y, e, mu_L, p):
 
     beta = beta_max * sall_temp_effect(T_used)  # pathogen growth rate
     T_E = -0.35968 + 0.10789 * T_used - 0.00214 * (T_used**2)
-
 
     dydt = np.zeros_like(y)
 # =============================================================================
@@ -82,7 +80,7 @@ def SLIRPE_model(idx, y, e, mu_L, p):
     if(I==0):  #spore production shouldn't start before infection (quirk of exponential curve fit)
         dydt[7] = 0
     else:
-    #    dydt[7] = 
+        dydt[7] = Gamma * np.exp(alpha * I * A) - F * (np.exp(kappa * M + xi) / eta * (1 + np.exp(kappa * M + xi)))
 #     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # =============================================================================
     return dydt
