@@ -47,7 +47,7 @@ import numpy as np
 from SLIRPE import SLIRPE_model
 from gaussian_plume_dep import gaussian_plume_dep
 from latentperiod import latentperiod
-from Runge_kutta import rk4
+from euler import euler
 # =============================================================================
 # # IMPORT a function for time integration (can be Euler or RK4 or ...)
 # =============================================================================
@@ -110,7 +110,7 @@ def PathogenGrowth_2D(vine, beta_max, mu_L_target, mu_I, A, eta, kappa, xi, Gamm
 #             %%%% odefun to work as given above your call needs to look like:
 #             %[y] = TimeInt(odefun,t,dt,y0,DepFlux_sum(cnt),vine(cnt).mu_L)
                 # need to modify to match above^^
-                ylist = rk4(odefun, t, dt, y0, DepFlux_sum(cnt),vine(cnt).mu_L)
+                y = euler(odefun, t, dt, y0, DepFlux_sum(cnt),vine(cnt).mu_L)
 #             %NOTE: recognize that you are only integrating 1 time step!
 #             %your routine can be more general than that but recognize that
 #             %this point is in the middle of a time loop!
