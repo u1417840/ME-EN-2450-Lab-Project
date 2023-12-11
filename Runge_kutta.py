@@ -1,5 +1,8 @@
 import numpy as np
 
+# change to be of the form
+# [y] = TimeInt(odefun,t,dt,y0,DepFlux_sum(cnt),vine(cnt).mu_L)
+
 def rk4(odefun, tspan, y0):
     tLen = len(tspan)
     yLen = len(x0)
