@@ -40,7 +40,7 @@ def SLIRPE_model(idx, y, e, mu_L, p):
     B, P, S, L, I, R, E, F = y[:8]
     
     # Calculated parameters
-    if np.ceil(idx) == np.floor(idx): #when we are at an interger step
+    if np.ceil(idx) == np.floor(idx): #when we are at an integer step
         idx = int(idx)
         T_used = T[idx]
         day_used = day[idx]
