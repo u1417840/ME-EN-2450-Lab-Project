@@ -25,7 +25,7 @@ Nsteps = len(T)  # number of time steps for integration
 LpX = 1  # X-direction physical length of a plant in meters
 LpY = 1  # Y-direction physical length of a plant in meters
 # normalization factor for a plant ('final' susceptible plant surface area in cm^2)
-A = 5000 / 10000  #divided by 10,000 to keep units constant
+A = 5000  #######possibly need to divide by 10,000 to keep units constant
 # initial average size of an individual plant in the population
 # (=model after 30 days with constant temp of 15C + 1 for initial berry size)
 P_i_ave = 1.33 * 30 * (-0.35968 + 0.10789 * 15 - 0.00214 * 15 * 15) * 30 + 1
