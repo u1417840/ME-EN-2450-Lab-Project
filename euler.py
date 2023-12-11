@@ -6,5 +6,6 @@ import numpy as np
 def euler(odefun, t, dt, y0, e, g):
         
     slope = odefun(t, y0, e, g)
+    y = y0 + slope * dt
     
-    return y0 + slope * dt
+    return y
