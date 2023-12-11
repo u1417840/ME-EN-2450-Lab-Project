@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Dec  5 00:19:27 2023
-
-@author: lukasgoulet
-"""
-
 import numpy as np
 
 def rk4(odefun, tspan, x0):
