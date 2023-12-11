@@ -77,10 +77,12 @@ def SLIRPE_model(idx, y, e, mu_L, p):
     # dep_area = S
     # dydt[6] = gaussian_plume_dep(X, Y, WindSpeed, WindDir, dep_area, Q)
     dydt[6] = e
+    spore_prod = Gamma * np.exp(alpha * I * (A / 10000.0))
+    R_f = np.exp(kappa * m_used + xi) / (eta * (1.0 + np.exp(kappa * m_used + xi)))
+    spore_escape = F * R_f
     if(I==0):  #spore production shouldn't start before infection (quirk of exponential curve fit)
         dydt[7] = 0
     else:
-        dydt[7] = Gamma * np.exp(alpha * I * A) - F * (np.exp(kappa * m_used + xi) / eta * (1 + np.exp(kappa * m_used + xi)))
-#     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        dydt[7] = spore_prod - spore_escape
 # =============================================================================
     return dydt
