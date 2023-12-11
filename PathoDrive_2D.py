@@ -10,7 +10,7 @@ mat_data = scipy.io.loadmat('EnvironmentalForcing.mat')
 T = mat_data["T"][0]
 tspan = mat_data["tspan"][0]
 U = mat_data["U"][0]
-V = mat_data["U"][0]
+V = mat_data["V"][0]
 
 # declare global variables so the function has access without passing
 #global NpX, NpY, Nsteps
