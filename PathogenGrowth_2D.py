@@ -110,7 +110,7 @@ def PathogenGrowth_2D(vine, beta_max, mu_L_target, mu_I, A, eta, kappa, xi, Gamm
 #             %%%% odefun to work as given above your call needs to look like:
 #             %[y] = TimeInt(odefun,t,dt,y0,DepFlux_sum(cnt),vine(cnt).mu_L)
                 # need to modify to match above^^
-                ylist = rk4(odefun, tspan, y0)
+                ylist = rk4(odefun, t, dt, y0, DepFlux_sum(cnt),vine(cnt).mu_L)
 #             %NOTE: recognize that you are only integrating 1 time step!
 #             %your routine can be more general than that but recognize that
 #             %this point is in the middle of a time loop!
