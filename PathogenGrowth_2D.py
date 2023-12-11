@@ -142,3 +142,43 @@ def PathogenGrowth_2D(vine, beta_max, mu_L_target, mu_I, A, eta, kappa, xi, Gamm
 #     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # =============================================================================
+                if vine[cnt]["IsInfect"] == True:
+                    I_dia = np.power( (vine[cnt]["I"][t] * (4 * A) / np.pi), 0.5)
+                    if DetectSize <= (I_dia * 10):
+                        day_detected = tspan[t] / 24
+                        drone_hours = num_drones * scouts_per_day
+                        break
+                        
+    def scouting_cost(drone_hours, day_detected, drone_cost, day_cost, day_cost_start):
+        total_cost = (drone_hours * drone_cost * day_detected) + (day_detected - day_cost_start) * day_cost
+    return total_cost
+
+    drone_cost = 100
+    day_cost = 1000
+    day_cost_start = 10
+
+    cost = scouting_cost(drone_hours, day_detected, drone_cost, day_cost, day_cost_start)
+    print("Cost of Scouting is", cost, "Dollars")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
