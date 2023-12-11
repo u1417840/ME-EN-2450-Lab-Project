@@ -51,6 +51,18 @@ from euler import euler
 # =============================================================================
 # # IMPORT a function for time integration (can be Euler or RK4 or ...)
 # =============================================================================
+# Import Scouting Function
+def scouting_cost(drone_hours, day_detected, drone_cost, day_cost, day_cost_start):
+        total_cost = (drone_hours * drone_cost * day_detected) + (day_detected - day_cost_start) * day_cost
+    return total_cost
+
+num_drones = 4
+scouts_per_day = 1
+ScoutSpeed = 0.2 # m/s
+DetectSize = 20 * ScoutSpeed
+drone_cost = 100
+day_cost = 1000
+day_cost_start = 10
 
 def PathogenGrowth_2D(vine, beta_max, mu_L_target, mu_I, A, eta, kappa, xi, Gamma, alpha, T, U, V, tspan, NpX, NpY, Nsteps):
 
@@ -148,14 +160,6 @@ def PathogenGrowth_2D(vine, beta_max, mu_L_target, mu_I, A, eta, kappa, xi, Gamm
                         day_detected = tspan[t] / 24
                         drone_hours = num_drones * scouts_per_day
                         break
-                        
-    def scouting_cost(drone_hours, day_detected, drone_cost, day_cost, day_cost_start):
-        total_cost = (drone_hours * drone_cost * day_detected) + (day_detected - day_cost_start) * day_cost
-    return total_cost
-
-    drone_cost = 100
-    day_cost = 1000
-    day_cost_start = 10
 
     cost = scouting_cost(drone_hours, day_detected, drone_cost, day_cost, day_cost_start)
     print("Cost of Scouting is", cost, "Dollars")
