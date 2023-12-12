@@ -47,18 +47,27 @@ import numpy as np
 from SLIRPE import SLIRPE_model
 from gaussian_plume_dep import gaussian_plume_dep
 from latentperiod import latentperiod
-from euler import euler
 # =============================================================================
 # # IMPORT a function for time integration (can be Euler or RK4 or ...)
+from euler import euler
 # =============================================================================
-# Import Scouting Function
 
 def PathogenGrowth_2D(vine, beta_max, mu_L_target, mu_I, A, eta, kappa, xi, Gamma, alpha, T, U, V, tspan, NpX, NpY, Nsteps):
 
-    
     # Set parameters in a list
     p = [beta_max, 1 / mu_I, T, tspan, A, np.sqrt(U**2 + V**2), np.degrees(np.arctan2(V, U)), eta, kappa, xi, Gamma, alpha]
    
+    #set parameters for cost function
+    ScoutSpeed = 0.2 # m/s
+    DetectSize = 20 * ScoutSpeed
+    num_drones = 4
+    scouts_per_day = 1
+    drone_cost = 100
+    day_cost = 1000
+    day_cost_start = 10
+    day_detected_list = []
+    drone_hours_list = []
+    
     # Declare function handles
     odefun = lambda t, y, e, g: SLIRPE_model(t, y, e, g, p)
 
@@ -111,7 +120,7 @@ def PathogenGrowth_2D(vine, beta_max, mu_L_target, mu_I, A, eta, kappa, xi, Gamm
 #             %%%% odefun to work as given above your call needs to look like:
 #             %[y] = TimeInt(odefun,t,dt,y0,DepFlux_sum(cnt),vine(cnt).mu_L)
                 # need to modify to match above^^
-                y = euler(odefun, t, dt, y0, DepFlux_sum(cnt),vine(cnt).mu_L)
+                y = euler(odefun, t, dt, y0, dep_flux_sum[cnt],vine[cnt]["mu_L"])
 #             %NOTE: recognize that you are only integrating 1 time step!
 #             %your routine can be more general than that but recognize that
 #             %this point is in the middle of a time loop!
@@ -143,47 +152,18 @@ def PathogenGrowth_2D(vine, beta_max, mu_L_target, mu_I, A, eta, kappa, xi, Gamm
 #     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # =============================================================================
-                ScoutSpeed = 0.2 # m/s
-                DetectSize = 20 * ScoutSpeed
+                
                 if vine[cnt]["IsInfect"] == True:
                     I_dia = np.power( (vine[cnt]["I"][t] * (4 * A) / np.pi), 0.5)
                     if DetectSize <= (I_dia * 10):
-                        day_detected = tspan[t] / 24
-                        drone_hours = num_drones * scouts_per_day
-                        break
-
+                        day_detected_list = np.append(day_detected_list, tspan[t])
+                        drone_hours_list = np.append(drone_hours_list, num_drones * scouts_per_day)
+        
     def scouting_cost(drone_hours, day_detected, drone_cost, day_cost, day_cost_start):
         total_cost = (drone_hours * drone_cost * day_detected) + (day_detected - day_cost_start) * day_cost
         return total_cost
-
-    num_drones = 4
-    scouts_per_day = 1
-    drone_cost = 100
-    day_cost = 1000
-    day_cost_start = 10
-            
-    cost = scouting_cost(drone_hours, day_detected, drone_cost, day_cost, day_cost_start)
-    print("Cost of Scouting is", cost, "Dollars")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    print(day_detected_list[0])
+    cost = scouting_cost(drone_hours_list[0], day_detected_list[0], drone_cost, day_cost, day_cost_start)
+    print(f"Cost of Scouting is ${cost}")
+    
+    
