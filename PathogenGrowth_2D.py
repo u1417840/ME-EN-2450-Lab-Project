@@ -57,16 +57,33 @@ def PathogenGrowth_2D(vine, beta_max, mu_L_target, mu_I, A, eta, kappa, xi, Gamm
     # Set parameters in a list
     p = [beta_max, 1 / mu_I, T, tspan, A, np.sqrt(U**2 + V**2), np.degrees(np.arctan2(V, U)), eta, kappa, xi, Gamma, alpha]
    
-    #set parameters for cost function
-    ScoutSpeed = 0.2 # m/s
-    DetectSize = 20 * ScoutSpeed
-    num_drones = 4
+    # Set parameters for scouting function
+    ScoutSpeed = 0.125 # m/s
+    DetectSize = 20 * ScoutSpeed # infection diameter (mm) that we are able to detect
+    num_drones = 6
     scouts_per_day = 1
-    drone_cost = 100
-    day_cost = 1000
-    day_cost_start = 10
-    day_detected_list = []
-    drone_hours_list = []
+    drone_cost = 100 # cost of using drone for 1 hour to scout
+    day_cost = 1000 # charge of not finding the infection each day
+    day_cost_start = 10 # day that we start getting charged for not finding infection
+    day_start_scout = int((day_cost_start + (mu_L_target / 2) - 0.5) * 24)
+    drone_scout_cost = 0 # initial cost of using drones
+    day_undetection_cost = 1500 # inital cost cause we start scouting on day 12.5
+    scout_index = 1 # tracks if we found Infection, so we don't have to keep scouting the plants after we find it the first time
+    
+    def scout_fun(NpX, NpY, vine, A, DetectSize, num_drones, scouts_per_day, drone_scout_cost, day_undetection_cost, t):
+        for i in range(NpX):
+            for j in range(NpY):
+                cnt = i + j * NpX
+                if vine[cnt]["IsInfect"] == True:
+                    I_dia = np.power( (vine[cnt]["I"][t] * (4 * A) / np.pi), 0.5)
+                    if DetectSize <= (I_dia * 10):
+                        drone_scout_cost = drone_scout_cost + (drone_cost * num_drones * scouts_per_day)
+                        day_undetection_cost = day_undetection_cost + day_cost
+                        return True, drone_scout_cost, day_undetection_cost
+                    
+        drone_scout_cost = drone_scout_cost + (drone_cost * num_drones * scouts_per_day)
+        day_undetection_cost = day_undetection_cost + day_cost
+        return False, drone_scout_cost, day_undetection_cost
     
     # Declare function handles
     odefun = lambda t, y, e, g: SLIRPE_model(t, y, e, g, p)
@@ -152,18 +169,31 @@ def PathogenGrowth_2D(vine, beta_max, mu_L_target, mu_I, A, eta, kappa, xi, Gamm
 #     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # =============================================================================
-                
-                if vine[cnt]["IsInfect"] == True:
-                    I_dia = np.power( (vine[cnt]["I"][t] * (4 * A) / np.pi), 0.5)
-                    if DetectSize <= (I_dia * 10):
-                        day_detected_list = np.append(day_detected_list, tspan[t])
-                        drone_hours_list = np.append(drone_hours_list, num_drones * scouts_per_day)
+        if scout_index < 2: # checks to see if we still need to scout
+                    for sctDay in range(int((len(tspan) - day_start_scout) / 24)): 
+                        # scouts once every 24 hours
+                        if t == day_start_scout + sctDay * 24: 
+                            if scout_fun(NpX, NpY, vine, A, DetectSize, num_drones, scouts_per_day, drone_scout_cost, day_undetection_cost, t)[0] == True:
+                                scout_index = scout_index + 1
+                                day_discovered = tspan[t]
+                                drone_scout_cost = scout_fun(NpX, NpY, vine, A, DetectSize, num_drones, scouts_per_day, drone_scout_cost, day_undetection_cost, t)[1]
+                                day_undetection_cost = scout_fun(NpX, NpY, vine, A, DetectSize, num_drones, scouts_per_day, drone_scout_cost, day_undetection_cost, t)[2]
+                                scouting_total_cost = drone_scout_cost + day_undetection_cost
+                                print('\n  Day:', tspan[t], 'Infection Discovered')
+                                print('    Drone Scouting Operation Cost: $', drone_cost * num_drones * scouts_per_day, '\n')
+                            else:
+                                drone_scout_cost = scout_fun(NpX, NpY, vine, A, DetectSize, num_drones, scouts_per_day, drone_scout_cost, day_undetection_cost, t)[1]
+                                day_undetection_cost = scout_fun(NpX, NpY, vine, A, DetectSize, num_drones, scouts_per_day, drone_scout_cost, day_undetection_cost, t)[2]
+                                print('\n  Day:', tspan[t], 'Infection Not Found')
+                                print('    Drone Scouting Operation Cost: $', drone_cost * num_drones * scouts_per_day, '\n')
+                             
+                # Stops simulation once Infection is found so code doesn't run for infinite years
+                if scout_index > 1:
+                    break
         
-    def scouting_cost(drone_hours, day_detected, drone_cost, day_cost, day_cost_start):
-        total_cost = (drone_hours * drone_cost * day_detected) + (day_detected - day_cost_start) * day_cost
-        return total_cost
-    print(day_detected_list[0])
-    cost = scouting_cost(drone_hours_list[0], day_detected_list[0], drone_cost, day_cost, day_cost_start)
-    print(f"Cost of Scouting is ${cost}")
+    print('\n  Infection Found on Day', day_discovered)
+    print('  Total Cost: $', scouting_total_cost)
+    print('    Total Drone Scouting Cost: $', drone_scout_cost)
+    print('    Total Delayed Detection Cost: $', day_undetection_cost)
     
     
